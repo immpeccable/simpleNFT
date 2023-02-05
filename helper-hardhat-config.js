@@ -21,6 +21,7 @@ const networkConfig = {
     callbackGasLimit: "500000",
     interval: "30",
     mintFee: "0.01",
+    subscriptionId: "1",
   },
 };
 

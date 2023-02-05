@@ -34,6 +34,7 @@ contract SimpleNft is VRFConsumerBaseV2, ERC721URIStorage {
     uint32 private constant NUM_WORDS = 1;
     uint16 private constant REQUEST_CONFIRMATIONS = 1;
     uint256 private constant MODE = 124;
+    string constant BASE_URI = "ipfs://";
 
     mapping(uint256 => address) private s_requests;
     uint8[5] internal rarity = [4, 12, 28, 60, 124];
@@ -84,9 +85,13 @@ contract SimpleNft is VRFConsumerBaseV2, ERC721URIStorage {
         CatBreed breed = getCatIndex(randomNumber);
         uint256 newTokenId = s_tokenCounter;
         s_tokenCounter++;
-        _setTokenURI(s_tokenCounter, s_catUris[uint256(breed)]);
-        _safeMint(minter, s_tokenCounter);
+        _setTokenURI(newTokenId, s_catUris[uint256(breed)]);
+        _safeMint(minter, newTokenId);
         emit Nft_Minted(requestId, minter);
+    }
+
+    function _baseURI() internal pure override returns (string memory) {
+        return BASE_URI;
     }
 
     function getCatIndex(
@@ -102,5 +107,21 @@ contract SimpleNft is VRFConsumerBaseV2, ERC721URIStorage {
             }
         }
         revert SimpleNft__OutOfBounds(randomNumber);
+    }
+
+    function getTokenCounter() public view returns (uint256) {
+        return s_tokenCounter;
+    }
+
+    function getSubscriptionId() public view returns (uint64) {
+        return i_subscriptionId;
+    }
+
+    function getRequestConfirmations() public pure returns (uint64) {
+        return REQUEST_CONFIRMATIONS;
+    }
+
+    function getRequester(uint256 requestId) public view returns (address) {
+        return s_requests[requestId];
     }
 }
