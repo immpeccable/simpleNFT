@@ -7,12 +7,14 @@ const { verify } = require("../utils/verify");
 
 const FUND_AMOUNT = ethers.utils.parseUnits("10", 18);
 const MINT_FEE = ethers.utils.parseEther("0.01");
+const TOKEN_URI_PATH = "./utils/tokenURIS.js";
+const fs = require("fs");
 
 module.exports = async function () {
   const deployer = (await getNamedAccounts()).deployer;
   const { deploy, log } = deployments;
   let vrfCoordinatorMock, vrfCoordinatorMockAddress, subscriptionId;
-  const catUris = [];
+  const catUris = JSON.parse(fs.readFileSync(TOKEN_URI_PATH, "utf-8"));
   const chainId = network.config.chainId;
 
   if (developmentChains.includes(network.name)) {
@@ -42,8 +44,8 @@ module.exports = async function () {
 
   const simpleNft = await deploy("SimpleNft", {
     from: deployer,
-      args: args,
-      waitConfirmations: network.config.blockConfirmations || 1
+    args: args,
+    waitConfirmations: network.config.blockConfirmations || 1,
   });
 
   if (

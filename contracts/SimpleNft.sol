@@ -9,6 +9,7 @@ import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 
 error SimpleNft__OutOfBounds(uint256 randomNumber);
+error SimpleNft__NotEnoughEth(uint256 eth);
 
 contract SimpleNft is VRFConsumerBaseV2, ERC721URIStorage {
     enum CatBreed {
@@ -27,7 +28,7 @@ contract SimpleNft is VRFConsumerBaseV2, ERC721URIStorage {
     uint64 private immutable i_subscriptionId;
     VRFCoordinatorV2Interface private immutable i_coordinator;
     uint32 private immutable i_callbackGasLimit;
-    bytes32 private immutable i_gasLane;
+    bytes32 private immutable i_gaslane;
     uint256 private immutable i_mintFee;
     string[] internal s_catUris;
 
@@ -59,13 +60,16 @@ contract SimpleNft is VRFConsumerBaseV2, ERC721URIStorage {
         s_catUris = catUris;
         i_subscriptionId = subId;
         i_callbackGasLimit = callbackGasLimit;
-        i_gasLane = gasLane;
+        i_gaslane = gasLane;
         i_mintFee = mintFee;
     }
 
     function requestNft() external payable {
+        if (msg.value < i_mintFee) {
+            revert SimpleNft__NotEnoughEth(msg.value);
+        }
         uint256 requestId = i_coordinator.requestRandomWords(
-            i_gasLane,
+            i_gaslane,
             i_subscriptionId,
             REQUEST_CONFIRMATIONS,
             i_callbackGasLimit,
@@ -123,5 +127,21 @@ contract SimpleNft is VRFConsumerBaseV2, ERC721URIStorage {
 
     function getRequester(uint256 requestId) public view returns (address) {
         return s_requests[requestId];
+    }
+
+    function getCallbackGasLimit() public view returns (uint32) {
+        return i_callbackGasLimit;
+    }
+
+    function getMintFee() public view returns (uint256) {
+        return i_mintFee;
+    }
+
+    function getGaslane() public view returns (bytes32) {
+        return i_gaslane;
+    }
+
+    function getCatUri(uint256 catIndex) public view returns (string memory) {
+        return s_catUris[catIndex];
     }
 }

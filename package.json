@@ -19,6 +19,12 @@
     "prettier": "^2.8.3",
     "prettier-plugin-solidity": "^1.1.1",
     "solhint": "^3.3.8",
-    "solidity-coverage": "^0.8.2"
+    "solidity-coverage": "^0.8.2",
+    "node-fetch": "2.6.1"
+  },
+  "dependencies": {
+    "mime": "^3.0.0",
+    "nft.storage": "^7.0.0",
+    "node-fetch": "2.6.1"
   }
 }
